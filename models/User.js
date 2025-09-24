@@ -17,8 +17,16 @@ const findByEmail = async (email) => {
     return await collection.findOne({ email });
 };
 
+const updateLastLogin = async (email) => {
+    const collection = database.getCollection('users');
+    return await collection.updateOne(
+        { email },
+        { $set: { last_log_in: new Date().toISOString() } }
+    );
+};
+
 module.exports = {
     create,
-    findByEmail
-
+    findByEmail,
+    updateLastLogin
 };
