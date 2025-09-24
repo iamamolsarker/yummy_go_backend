@@ -3,30 +3,36 @@ const { sendSuccess, sendError, sendCreated, sendNotFound, sendBadRequest } = re
 
 const createUser = async (req, res) => {
   try {
-    const { email, name, role, created_at, last_log_in } = req.body;
+    const { email, name, phone, role } = req.body;
 
-    if (!email) {
-      return sendBadRequest(res, 'Email is required');
+    // Basic validation
+    if (!email || !name) {
+      return sendBadRequest(res, 'Name and email are required');
     }
 
+    // Check if user already exists
     const existingUser = await User.findByEmail(email);
     if (existingUser) {
-      // User already exists: update last_log_in
-      const updateResult = await User.updateLastLogin(email);
-      if (updateResult.modifiedCount === 0) {
-        return sendError(res, 'Failed to update last login', 500);
-      }
-      return sendSuccess(res, { inserted: false }, 'User already exists. Last login updated.');
+      return sendBadRequest(res, 'User with this email already exists');
     }
 
     // Create new user
-    const userData = { name, email, role, created_at, last_log_in };
+    const userData = { 
+      name, 
+      email, 
+      phone: phone || null,
+      role: role || 'user'
+    };
+    
     const result = await User.create(userData);
 
-    return sendCreated(res, { inserted: true, userId: result.insertedId }, 'User created successfully');
+    return sendCreated(res, { 
+      userId: result.insertedId,
+      user: userData
+    }, 'User created successfully');
 
   } catch (error) {
-    console.error('Error inserting/updating user:', error);
+    console.error('Error creating user:', error);
     return sendError(res, 'Internal Server Error', 500, error);
   }
 };
