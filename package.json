@@ -1,7 +1,6 @@
 {
-  "name": "yummy_go_backend",
+  "name": "yummy-go-backend",
   "version": "1.0.0",
-  "description": "",
   "homepage": "https://github.com/iamamolsarker/yummy_go_backend#readme",
   "bugs": {
     "url": "https://github.com/iamamolsarker/yummy_go_backend/issues"
@@ -10,20 +9,24 @@
     "type": "git",
     "url": "git+https://github.com/iamamolsarker/yummy_go_backend.git"
   },
-  "license": "ISC",
-  "author": "",
-  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "firebase-admin": "^13.5.0",
     "mongodb": "^6.20.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }

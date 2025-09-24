@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 // Initialize Firebase
-initializeFirebase();
+// initializeFirebase(); 
 
 async function startServer() {
     try {

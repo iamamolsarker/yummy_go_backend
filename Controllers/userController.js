@@ -30,3 +30,29 @@ const createUser = async (req, res) => {
     return sendError(res, 'Internal Server Error', 500, error);
   }
 };
+
+const getUserByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    if (!email) {
+      return sendBadRequest(res, 'Email is required');
+    }
+
+    const user = await User.findByEmail(email);
+    if (!user) {
+      return sendNotFound(res, 'User not found');
+    }
+
+    return sendSuccess(res, user, 'User retrieved successfully');
+
+  } catch (error) {
+    console.error('Error retrieving user:', error);
+    return sendError(res, 'Internal Server Error', 500, error);
+  }
+};
+
+module.exports = {
+  createUser,
+  getUserByEmail
+};
