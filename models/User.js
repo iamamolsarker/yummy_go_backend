@@ -5,6 +5,7 @@ const create = async (userData) => {
     const user = {
         name: userData.name,
         email: userData.email,
+        phone: userData.phone || null,
         role: userData.role || 'user',
         created_at: userData.created_at || new Date().toISOString(),
         last_log_in: userData.last_log_in || new Date().toISOString(),
