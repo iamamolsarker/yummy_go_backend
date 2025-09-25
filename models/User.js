@@ -11,7 +11,7 @@ const create = async (userData) => {
         last_log_in: userData.last_log_in || new Date().toISOString(),
     };
     const result = await collection.insertOne(user);
-    
+
     return result;
 };
 
@@ -32,8 +32,16 @@ const updateLastLogin = async (email) => {
     return result;
 };
 
+const findAll = async () => {
+    const collection = database.getCollection('users');
+    const result = await collection.find({}).sort({ created_at: -1 }).toArray();
+    
+    return result;
+};
+
 module.exports = {
     create,
     findByEmail,
-    updateLastLogin
+    updateLastLogin,
+    findAll
 };

@@ -40,15 +40,9 @@ const getCollection = (name) => {
     return collections[name];
 };
 
-const close = async () => {
-    if (client) {
-        await client.close();
-    }
-};
 
 // Export as Simple Object
 module.exports = {
     connect,
-    getCollection,
-    close
+    getCollection
 };
