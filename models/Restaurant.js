@@ -23,6 +23,9 @@ const create = async (restaurantData) => {
         rating: restaurantData.rating || 0,
         total_reviews: restaurantData.total_reviews || 0,
 
+        is_active: restaurantData.is_active !== undefined ? restaurantData.is_active : true,
+        is_verified: restaurantData.is_verified || false,
+
         created_at: new Date(),
         updated_at: new Date()
     };
@@ -111,18 +114,11 @@ const updateRating = async (id, newRating, reviewCount) => {
 
 const findNearby = async (coordinates, maxDistance = 5000) => {
     const collection = database.getCollection('restaurants');
+    // For now, return all restaurants since we don't have geo indexing set up
+    // TODO: Implement proper geospatial indexing for location-based queries
     const restaurants = await collection.find({
-        is_active: true,
-        'location.coordinates': {
-            $near: {
-                $geometry: {
-                    type: "Point",
-                    coordinates: [coordinates.lng, coordinates.lat]
-                },
-                $maxDistance: maxDistance
-            }
-        }
-    }).toArray();
+        is_active: true
+    }).sort({ rating: -1 }).toArray();
     return restaurants;
 };
 
@@ -133,6 +129,8 @@ const searchRestaurants = async (searchTerm) => {
         $or: [
             { name: { $regex: new RegExp(searchTerm, 'i') } },
             { cuisine: { $regex: new RegExp(searchTerm, 'i') } },
+            { 'location.address': { $regex: new RegExp(searchTerm, 'i') } },
+            { 'location.city': { $regex: new RegExp(searchTerm, 'i') } },
             { 'location.area': { $regex: new RegExp(searchTerm, 'i') } },
             { category: { $regex: new RegExp(searchTerm, 'i') } }
         ]

@@ -20,7 +20,7 @@ const createRestaurant = async (req, res) => {
     // Create new restaurant
     const restaurantData = {
       name,
-      location: location || null,
+      location: location ? (typeof location === 'string' ? { address: location } : location) : null,
       phone: phone || null,
       email: email || null,
       cuisine: cuisine || [],
