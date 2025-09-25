@@ -10,20 +10,26 @@ const create = async (userData) => {
         created_at: userData.created_at || new Date().toISOString(),
         last_log_in: userData.last_log_in || new Date().toISOString(),
     };
-    return await collection.insertOne(user);
+    const result = await collection.insertOne(user);
+    
+    return result;
 };
 
 const findByEmail = async (email) => {
     const collection = database.getCollection('users');
-    return await collection.findOne({ email });
+    const result = await collection.findOne({ email });
+
+    return result;
 };
 
 const updateLastLogin = async (email) => {
     const collection = database.getCollection('users');
-    return await collection.updateOne(
+    const result = await collection.updateOne(
         { email },
         { $set: { last_log_in: new Date().toISOString() } }
     );
+
+    return result;
 };
 
 module.exports = {
