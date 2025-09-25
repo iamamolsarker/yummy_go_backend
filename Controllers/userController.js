@@ -17,22 +17,36 @@ const createUser = async (req, res) => {
     }
 
     // Create new user
-    const userData = { 
-      name, 
-      email, 
+    const userData = {
+      name,
+      email,
       phone: phone || null,
       role: role || 'user'
     };
-    
+
     const result = await User.create(userData);
 
-    return sendCreated(res, { 
+    return sendCreated(res, {
       userId: result.insertedId,
       user: userData
     }, 'User created successfully');
 
   } catch (error) {
     console.error('Error creating user:', error);
+    return sendError(res, 'Internal Server Error', 500, error);
+  }
+};
+
+
+
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.findAll();
+    
+    return sendSuccess(res, users, 'Users retrieved successfully');
+    
+  } catch (error) {
+    console.error('Error retrieving users:', error);
     return sendError(res, 'Internal Server Error', 500, error);
   }
 };
@@ -60,5 +74,6 @@ const getUserByEmail = async (req, res) => {
 
 module.exports = {
   createUser,
+  getAllUsers,
   getUserByEmail
 };
