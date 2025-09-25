@@ -24,6 +24,7 @@ const connect = async () => {
         // Initialize collections
         collections = {
             users: db.collection('users'),
+            restaurants: db.collection('restaurants'),
           
         };
 
