@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const restaurantController = require('../Controllers/restaurantController');
+const menuRoutes = require('./menuRoutes');
 
 // POST: Add a new restaurant
 router.post('/', restaurantController.createRestaurant);
@@ -25,5 +26,11 @@ router.delete('/:id', restaurantController.deleteRestaurant);
 
 // PUT: Update restaurant rating
 router.put('/:id/rating', restaurantController.updateRestaurantRating);
+
+// Nested Menu Routes - /restaurants/:restaurantId/menus
+router.use('/:restaurantId/menus', (req, res, next) => {
+  req.params.restaurantId = req.params.restaurantId;
+  next();
+}, menuRoutes);
 
 module.exports = router;
