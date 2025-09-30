@@ -8,6 +8,12 @@ router.post('/', userController.createUser);
 // GET: Get all users
 router.get('/', userController.getAllUsers);
 
+// GET: Get users by role
+router.get('/role/:role', userController.getUsersByRole);
+
+// PATCH: Update user role
+router.patch('/:email/role', userController.updateUserRole);
+
 // GET: get user by email
 router.get('/:email', userController.getUserByEmail);
 

@@ -39,9 +39,28 @@ const findAll = async () => {
     return result;
 };
 
+const findByRole = async (role) => {
+    const collection = database.getCollection('users');
+    const result = await collection.find({ role }).sort({ created_at: -1 }).toArray();
+    
+    return result;
+};
+
+const updateRole = async (email, newRole) => {
+    const collection = database.getCollection('users');
+    const result = await collection.updateOne(
+        { email },
+        { $set: { role: newRole, updated_at: new Date().toISOString() } }
+    );
+    
+    return result;
+};
+
 module.exports = {
     create,
     findByEmail,
     updateLastLogin,
-    findAll
+    findAll,
+    findByRole,
+    updateRole
 };

@@ -72,8 +72,80 @@ const getUserByEmail = async (req, res) => {
   }
 };
 
+// Get users by role
+const getUsersByRole = async (req, res) => {
+  try {
+    const { role } = req.params;
+
+    if (!role) {
+      return sendBadRequest(res, 'Role is required');
+    }
+
+    // Validate role
+    const validRoles = ['user', 'admin', 'restaurant_owner', 'rider'];
+    if (!validRoles.includes(role)) {
+      return sendBadRequest(res, 'Invalid role. Valid roles are: ' + validRoles.join(', '));
+    }
+
+    const users = await User.findByRole(role);
+
+    return sendSuccess(res, users, `Users with role '${role}' retrieved successfully`);
+
+  } catch (error) {
+    console.error('Error retrieving users by role:', error);
+    return sendError(res, 'Internal Server Error', 500, error);
+  }
+};
+
+// Update user role
+const updateUserRole = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const { role } = req.body;
+
+    if (!email) {
+      return sendBadRequest(res, 'Email is required');
+    }
+
+    if (!role) {
+      return sendBadRequest(res, 'Role is required');
+    }
+
+    // Validate role
+    const validRoles = ['user', 'admin', 'restaurant_owner', 'rider'];
+    if (!validRoles.includes(role)) {
+      return sendBadRequest(res, 'Invalid role. Valid roles are: ' + validRoles.join(', '));
+    }
+
+    // Check if user exists
+    const existingUser = await User.findByEmail(email);
+    if (!existingUser) {
+      return sendNotFound(res, 'User not found');
+    }
+
+    // Update user role
+    const result = await User.updateRole(email, role);
+
+    if (result.modifiedCount === 0) {
+      return sendError(res, 'Failed to update user role', 400);
+    }
+
+    return sendSuccess(res, { 
+      updated: true, 
+      email: email, 
+      newRole: role 
+    }, 'User role updated successfully');
+
+  } catch (error) {
+    console.error('Error updating user role:', error);
+    return sendError(res, 'Internal Server Error', 500, error);
+  }
+};
+
 module.exports = {
   createUser,
   getAllUsers,
-  getUserByEmail
+  getUserByEmail,
+  getUsersByRole,
+  updateUserRole
 };
