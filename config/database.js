@@ -26,6 +26,7 @@ const connect = async () => {
             users: db.collection('users'),
             restaurants: db.collection('restaurants'),
             riders: db.collection('riders'),
+            menus: db.collection('menus'),
         };
 
         console.log("Successfully connected to MongoDB!");
