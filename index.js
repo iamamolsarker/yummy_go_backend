@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ silent: true });
 const express = require('express');
 const cors = require('cors');
 
@@ -45,14 +45,6 @@ app.use((err, req, res, next) => {
     });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
-    res.status(404).json({
-        success: false,
-        message: 'API endpoint not found'
-    });
-});
-
 async function startServer() {
     try {
         // Connect to MongoDB with retry
@@ -71,6 +63,25 @@ async function startServer() {
 
         // Mount all routes
         app.use('/api', routes);
+
+        // 404 handler for API routes (must come after routes)
+        app.use('/api', (req, res) => {
+            res.status(404).json({
+                success: false,
+                message: 'API endpoint not found',
+                path: req.originalUrl
+            });
+        });
+
+        // Global 404 handler for all other routes
+        app.use((req, res) => {
+            res.status(404).json({
+                success: false,
+                message: 'Route not found',
+                path: req.originalUrl,
+                suggestion: 'Check if the URL is correct or visit /api/status for API health'
+            });
+        });
 
         console.log("All routes are set up");
     } catch (error) {
@@ -136,7 +147,10 @@ app.get('/api/status', async (req, res) => {
 // Vercel specific setup
 if (process.env.VERCEL) {
     // In Vercel, connect to database on module load
-    startServer().catch(console.error);
+    startServer().catch((error) => {
+        console.error('Failed to start server in Vercel:', error);
+        // Don't throw in production to prevent function crash
+    });
     module.exports = app;
 } else {
     // Local development
