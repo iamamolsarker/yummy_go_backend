@@ -7,7 +7,9 @@ const database = require('./config/database');
 const { initializeFirebase } = require('./config/firebase');
 
 // Import routes  
+console.log("Loading routes...");
 const routes = require('./routes');
+console.log("Routes loaded successfully");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -63,18 +65,36 @@ async function startServer() {
 
         // Mount all routes
         app.use('/api', routes);
+        
+        console.log("Routes mounted successfully");
+        console.log("Available routes:", {
+            users: '/api/users',
+            restaurants: '/api/restaurants', 
+            riders: '/api/riders'
+        });
 
         // 404 handler for API routes (must come after routes)
         app.use('/api', (req, res) => {
+            console.log("404 - API endpoint not found:", req.originalUrl);
             res.status(404).json({
                 success: false,
                 message: 'API endpoint not found',
-                path: req.originalUrl
+                path: req.originalUrl,
+                availableEndpoints: [
+                    'GET /api/status',
+                    'POST /api/users',
+                    'GET /api/users',
+                    'POST /api/restaurants',
+                    'GET /api/restaurants',
+                    'POST /api/riders',
+                    'GET /api/riders'
+                ]
             });
         });
 
         // Global 404 handler for all other routes
         app.use((req, res) => {
+            console.log("404 - Route not found:", req.originalUrl);
             res.status(404).json({
                 success: false,
                 message: 'Route not found',
