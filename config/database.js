@@ -10,15 +10,28 @@ const connect = async () => {
     try {
         const uri = process.env.MONGODB_URI;
         
+        if (!uri) {
+            throw new Error('MongoDB URI not found in environment variables');
+        }
+        
         client = new MongoClient(uri, {
             serverApi: {
                 version: ServerApiVersion.v1,
                 strict: true,
                 deprecationErrors: true,
-            }
+            },
+            // Vercel optimizations
+            maxPoolSize: 10,
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+            connectTimeoutMS: 10000,
+            maxIdleTimeMS: 30000,
+            retryWrites: true,
+            retryReads: true
         });
 
         await client.connect();
+        await client.db('admin').command({ ping: 1 });
         db = client.db('Yummy_Go');
 
         // Initialize collections
