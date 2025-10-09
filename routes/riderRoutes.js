@@ -17,17 +17,17 @@ router.get('/:id', riderController.getRiderById);
 // GET: Get rider by email
 router.get('/email/:email', riderController.getRiderByEmail);
 
-// PUT: Update rider
+// PUT: Update rider (complete replacement)
 router.put('/:id', riderController.updateRider);
 
-// PUT: Update rider status
-router.put('/:id/status', riderController.updateRiderStatus);
+// PATCH: Update rider status
+router.patch('/:id/status', riderController.updateRiderStatus);
 
-// PUT: Update rider location
-router.put('/:id/location', riderController.updateRiderLocation);
+// PATCH: Update rider location
+router.patch('/:id/location', riderController.updateRiderLocation);
 
-// PUT: Update rider rating
-router.put('/:id/rating', riderController.updateRiderRating);
+// PATCH: Update rider rating
+router.patch('/:id/rating', riderController.updateRiderRating);
 
 // DELETE: Delete rider
 router.delete('/:id', riderController.deleteRider);
