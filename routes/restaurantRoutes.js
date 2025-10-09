@@ -18,14 +18,14 @@ router.get('/nearby', restaurantController.getNearbyRestaurants);
 // GET: Get restaurant by ID
 router.get('/:id', restaurantController.getRestaurantById);
 
-// PUT: Update restaurant
+// PUT: Update restaurant (complete replacement)
 router.put('/:id', restaurantController.updateRestaurant);
 
 // DELETE: Delete restaurant
 router.delete('/:id', restaurantController.deleteRestaurant);
 
-// PUT: Update restaurant rating
-router.put('/:id/rating', restaurantController.updateRestaurantRating);
+// PATCH: Update restaurant rating
+router.patch('/:id/rating', restaurantController.updateRestaurantRating);
 
 // Nested Menu Routes - /restaurants/:restaurantId/menus
 router.use('/:restaurantId/menus', (req, res, next) => {
