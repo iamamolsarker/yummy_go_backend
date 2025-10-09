@@ -7,6 +7,7 @@ const create = async (userData) => {
         email: userData.email,
         phone: userData.phone || null,
         role: userData.role || 'user',
+        status: userData.status || 'pending',
         created_at: userData.created_at || new Date().toISOString(),
         last_log_in: userData.last_log_in || new Date().toISOString(),
     };
@@ -62,6 +63,29 @@ const getUserRoleByEmail = async (email) => {
     return user ? user.role : null;
 }
 
+const findByStatus = async (status) => {
+    const collection = database.getCollection('users');
+    const result = await collection.find({ status }).sort({ created_at: -1 }).toArray();
+    
+    return result;
+};
+
+const updateStatus = async (email, newStatus) => {
+    const collection = database.getCollection('users');
+    const result = await collection.updateOne(
+        { email },
+        { $set: { status: newStatus, updated_at: new Date().toISOString() } }
+    );
+    
+    return result;
+};
+
+const getUserStatusByEmail = async (email) => {
+    const collection = database.getCollection('users');
+    const user = await collection.findOne({ email }, { projection: { status: 1, _id: 0 } });
+    return user ? user.status : null;
+}
+
 module.exports = {
     create,
     findByEmail,
@@ -69,5 +93,8 @@ module.exports = {
     findAll,
     findByRole,
     updateRole,
-    getUserRoleByEmail
+    getUserRoleByEmail,
+    findByStatus,
+    updateStatus,
+    getUserStatusByEmail
 };

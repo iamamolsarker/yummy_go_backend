@@ -17,11 +17,15 @@
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/users` | Create new user |
+| POST | `/api/users` | Create new user (default status: pending) |
 | GET | `/api/users` | Get all users |
-| GET | `/api/users/:role` | Get users by role (admin, user, rider, restaurant_owner) |
-| PATCH | `/api/users/:email/role` | Update user role |
+| GET | `/api/users/role/:role` | Get users by role (admin, user, rider, restaurant_owner) |
+| GET | `/api/users/status/:status` | Get users by status (pending, approved, rejected, suspended, active) |
 | GET | `/api/users/:email/role` | Get user role by email |
+| GET | `/api/users/:email/status` | Get user status by email |
+| PATCH | `/api/users/:email/role` | Update user role |
+| PATCH | `/api/users/:email/status` | Update user status |
+| GET | `/api/users/:email` | Get user by email |
 
 ---
 
@@ -127,6 +131,21 @@ Content-Type: application/json
 }
 ```
 
+### Update User Status
+```bash
+PATCH /api/users/john@example.com/status
+Content-Type: application/json
+
+{
+  "status": "approved"
+}
+```
+
+### Get Users by Status
+```bash
+GET /api/users/status/pending
+```
+
 ---
 
 ## 📝 Notes
@@ -134,7 +153,10 @@ Content-Type: application/json
 - **PUT vs PATCH:** 
   - Use PUT for complete resource replacement
   - Use PATCH for partial updates (status, rating, location, etc.)
+- **User Status Values:** pending, approved, rejected, suspended, active
+- **User Role Values:** user, admin, restaurant_owner, rider
 - All endpoints return JSON responses
+- New users are created with default status: "pending"
 - Authentication middleware can be added as needed
 - Database: MongoDB with native driver
 - Deployment: Vercel serverless functions
