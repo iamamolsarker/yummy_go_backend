@@ -173,11 +173,115 @@ const updateUserRole = async (req, res) => {
   }
 };
 
+// Get users by status
+const getUsersByStatus = async (req, res) => {
+  try {
+    const { status } = req.params;
+
+    if (!status) {
+      return sendBadRequest(res, 'Status is required');
+    }
+
+    // Validate status
+    const validStatuses = ['pending', 'approved', 'rejected', 'suspended', 'active'];
+    if (!validStatuses.includes(status.toLowerCase())) {
+      return sendBadRequest(res, 'Invalid status. Valid statuses are: ' + validStatuses.join(', '));
+    }
+
+    const users = await User.findByStatus(status.toLowerCase());
+
+    return sendSuccess(res, users, `Users with status '${status}' retrieved successfully`);
+
+  } catch (error) {
+    console.error('Error retrieving users by status:', error);
+    return sendError(res, 'Internal Server Error', 500, error);
+  }
+};
+
+// Update user status
+const updateUserStatus = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const { status } = req.body;
+
+    if (!email) {
+      return sendBadRequest(res, 'Email is required');
+    }
+
+    if (!status) {
+      return sendBadRequest(res, 'Status is required');
+    }
+
+    // Validate status
+    const validStatuses = ['pending', 'approved', 'rejected', 'suspended', 'active'];
+    if (!validStatuses.includes(status.toLowerCase())) {
+      return sendBadRequest(res, 'Invalid status. Valid statuses are: ' + validStatuses.join(', '));
+    }
+
+    // Check if user exists
+    const existingUser = await User.findByEmail(email);
+    if (!existingUser) {
+      return sendNotFound(res, 'User not found');
+    }
+
+    // Update user status
+    const result = await User.updateStatus(email, status.toLowerCase());
+
+    if (result.modifiedCount === 0) {
+      return sendError(res, 'Failed to update user status', 400);
+    }
+
+    return sendSuccess(res, { 
+      updated: true, 
+      email: email, 
+      newStatus: status.toLowerCase() 
+    }, 'User status updated successfully');
+
+  } catch (error) {
+    console.error('Error updating user status:', error);
+    return sendError(res, 'Internal Server Error', 500, error);
+  }
+};
+
+// Get user status by email
+const getUserStatusByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    // Basic validation
+    if (!email) {
+      return sendBadRequest(res, 'Email is required');
+    }
+
+    // Get user status by email
+    const status = await User.getUserStatusByEmail(email);
+    
+    if (!status) {
+      return sendNotFound(res, 'User not found');
+    }
+
+    // Return status information
+    const statusData = {
+      email: email,
+      status: status
+    };
+
+    return sendSuccess(res, statusData, 'User status retrieved successfully');
+
+  } catch (error) {
+    console.error('Error retrieving user status by email:', error);
+    return sendError(res, 'Internal Server Error', 500, error);
+  }
+};
+
 module.exports = {
   createUser,
   getAllUsers,
   getUserByEmail,
   getUsersByRole,
   updateUserRole,
-  getUserRoleByEmail
+  getUserRoleByEmail,
+  getUsersByStatus,
+  updateUserStatus,
+  getUserStatusByEmail
 };
