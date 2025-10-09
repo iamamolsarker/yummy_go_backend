@@ -56,11 +56,18 @@ const updateRole = async (email, newRole) => {
     return result;
 };
 
+const getUserRoleByEmail = async (email) => {
+    const collection = database.getCollection('users');
+    const user = await collection.findOne({ email }, { projection: { role: 1, _id: 0 } });
+    return user ? user.role : null;
+}
+
 module.exports = {
     create,
     findByEmail,
     updateLastLogin,
     findAll,
     findByRole,
-    updateRole
+    updateRole,
+    getUserRoleByEmail
 };

@@ -97,6 +97,37 @@ const getUsersByRole = async (req, res) => {
   }
 };
 
+// Get user role by email
+const getUserRoleByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    // Basic validation
+    if (!email) {
+      return sendBadRequest(res, 'Email is required');
+    }
+
+    // Get user role by email
+    const role = await User.getUserRoleByEmail(email);
+    
+    if (!role) {
+      return sendNotFound(res, 'User not found');
+    }
+
+    // Return role information
+    const roleData = {
+      email: email,
+      role: role
+    };
+
+    return sendSuccess(res, roleData, 'User role retrieved successfully');
+
+  } catch (error) {
+    console.error('Error retrieving user role by email:', error);
+    return sendError(res, 'Internal Server Error', 500, error);
+  }
+};
+
 // Update user role
 const updateUserRole = async (req, res) => {
   try {
@@ -147,5 +178,6 @@ module.exports = {
   getAllUsers,
   getUserByEmail,
   getUsersByRole,
-  updateUserRole
+  updateUserRole,
+  getUserRoleByEmail
 };
