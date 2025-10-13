@@ -165,6 +165,14 @@ const getRestaurantStatusById = async (id) => {
     return restaurant ? restaurant.status : null;
 };
 
+const findByEmail = async (email) => {
+    const collection = database.getCollection('restaurants');
+    const restaurant = await collection.findOne({
+        email: { $regex: new RegExp('^' + email + '$', 'i') }
+    });
+    return restaurant;
+};
+
 module.exports = {
     create,
     findById,
@@ -177,5 +185,6 @@ module.exports = {
     searchRestaurants,
     findByStatus,
     updateStatus,
-    getRestaurantStatusById
+    getRestaurantStatusById,
+    findByEmail
 };
