@@ -226,6 +226,106 @@ const updateRestaurantRating = async (req, res) => {
   }
 };
 
+// Get restaurants by status
+const getRestaurantsByStatus = async (req, res) => {
+  try {
+    const { status } = req.params;
+
+    if (!status) {
+      return sendBadRequest(res, 'Status is required');
+    }
+
+    // Validate status
+    const validStatuses = ['pending', 'approved', 'rejected', 'suspended', 'active'];
+    if (!validStatuses.includes(status.toLowerCase())) {
+      return sendBadRequest(res, 'Invalid status. Valid statuses are: ' + validStatuses.join(', '));
+    }
+
+    const restaurants = await Restaurant.findByStatus(status.toLowerCase());
+
+    return sendSuccess(res, restaurants, `Restaurants with status '${status}' retrieved successfully`);
+
+  } catch (error) {
+    console.error('Error retrieving restaurants by status:', error);
+    return sendError(res, 'Internal Server Error', 500, error);
+  }
+};
+
+// Update restaurant status
+const updateRestaurantStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!id) {
+      return sendBadRequest(res, 'Restaurant ID is required');
+    }
+
+    if (!status) {
+      return sendBadRequest(res, 'Status is required');
+    }
+
+    // Validate status
+    const validStatuses = ['pending', 'approved', 'rejected', 'suspended', 'active'];
+    if (!validStatuses.includes(status.toLowerCase())) {
+      return sendBadRequest(res, 'Invalid status. Valid statuses are: ' + validStatuses.join(', '));
+    }
+
+    // Check if restaurant exists
+    const existingRestaurant = await Restaurant.findById(id);
+    if (!existingRestaurant) {
+      return sendNotFound(res, 'Restaurant not found');
+    }
+
+    // Update restaurant status
+    const result = await Restaurant.updateStatus(id, status.toLowerCase());
+
+    if (result.modifiedCount === 0) {
+      return sendError(res, 'Failed to update restaurant status', 400);
+    }
+
+    return sendSuccess(res, { 
+      updated: true, 
+      restaurantId: id, 
+      newStatus: status.toLowerCase() 
+    }, 'Restaurant status updated successfully');
+
+  } catch (error) {
+    console.error('Error updating restaurant status:', error);
+    return sendError(res, 'Internal Server Error', 500, error);
+  }
+};
+
+// Get restaurant status by ID
+const getRestaurantStatusById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return sendBadRequest(res, 'Restaurant ID is required');
+    }
+
+    // Get restaurant status by ID
+    const status = await Restaurant.getRestaurantStatusById(id);
+    
+    if (!status) {
+      return sendNotFound(res, 'Restaurant not found');
+    }
+
+    // Return status information
+    const statusData = {
+      restaurantId: id,
+      status: status
+    };
+
+    return sendSuccess(res, statusData, 'Restaurant status retrieved successfully');
+
+  } catch (error) {
+    console.error('Error retrieving restaurant status by ID:', error);
+    return sendError(res, 'Internal Server Error', 500, error);
+  }
+};
+
 module.exports = {
   createRestaurant,
   getAllRestaurants,
@@ -234,5 +334,8 @@ module.exports = {
   deleteRestaurant,
   searchRestaurants,
   getNearbyRestaurants,
-  updateRestaurantRating
+  updateRestaurantRating,
+  getRestaurantsByStatus,
+  updateRestaurantStatus,
+  getRestaurantStatusById
 };

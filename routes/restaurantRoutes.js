@@ -15,6 +15,12 @@ router.get('/search', restaurantController.searchRestaurants);
 // GET: Get nearby restaurants
 router.get('/nearby', restaurantController.getNearbyRestaurants);
 
+// GET: Get restaurants by status
+router.get('/status/:status', restaurantController.getRestaurantsByStatus);
+
+// GET: Get restaurant status by ID (must come before /:id)
+router.get('/:id/status', restaurantController.getRestaurantStatusById);
+
 // GET: Get restaurant by ID
 router.get('/:id', restaurantController.getRestaurantById);
 
@@ -26,6 +32,9 @@ router.delete('/:id', restaurantController.deleteRestaurant);
 
 // PATCH: Update restaurant rating
 router.patch('/:id/rating', restaurantController.updateRestaurantRating);
+
+// PATCH: Update restaurant status
+router.patch('/:id/status', restaurantController.updateRestaurantStatus);
 
 // Nested Menu Routes - /restaurants/:restaurantId/menus
 router.use('/:restaurantId/menus', (req, res, next) => {
