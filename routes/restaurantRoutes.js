@@ -18,6 +18,9 @@ router.get('/nearby', restaurantController.getNearbyRestaurants);
 // GET: Get restaurants by status
 router.get('/status/:status', restaurantController.getRestaurantsByStatus);
 
+// GET: Get restaurant by email (must come before /:id)
+router.get('/email/:email', restaurantController.getRestaurantByEmail);
+
 // GET: Get restaurant status by ID (must come before /:id)
 router.get('/:id/status', restaurantController.getRestaurantStatusById);
 

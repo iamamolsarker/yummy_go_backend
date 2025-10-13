@@ -326,6 +326,34 @@ const getRestaurantStatusById = async (req, res) => {
   }
 };
 
+// Get restaurant by email
+const getRestaurantByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    if (!email) {
+      return sendBadRequest(res, 'Email is required');
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return sendBadRequest(res, 'Invalid email format');
+    }
+
+    const restaurant = await Restaurant.findByEmail(email);
+    if (!restaurant) {
+      return sendNotFound(res, 'Restaurant not found with this email');
+    }
+
+    return sendSuccess(res, restaurant, 'Restaurant retrieved successfully');
+
+  } catch (error) {
+    console.error('Error retrieving restaurant by email:', error);
+    return sendError(res, 'Internal Server Error', 500, error);
+  }
+};
+
 module.exports = {
   createRestaurant,
   getAllRestaurants,
@@ -337,5 +365,6 @@ module.exports = {
   updateRestaurantRating,
   getRestaurantsByStatus,
   updateRestaurantStatus,
-  getRestaurantStatusById
+  getRestaurantStatusById,
+  getRestaurantByEmail
 };
