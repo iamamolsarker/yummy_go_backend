@@ -23,6 +23,7 @@ const create = async (restaurantData) => {
         rating: restaurantData.rating || 0,
         total_reviews: restaurantData.total_reviews || 0,
 
+        status: restaurantData.status || 'pending',
         is_active: restaurantData.is_active !== undefined ? restaurantData.is_active : true,
         is_verified: restaurantData.is_verified || false,
 
@@ -138,6 +139,32 @@ const searchRestaurants = async (searchTerm) => {
     return restaurants;
 };
 
+const findByStatus = async (status) => {
+    const collection = database.getCollection('restaurants');
+    const result = await collection.find({ status }).sort({ created_at: -1 }).toArray();
+    
+    return result;
+};
+
+const updateStatus = async (id, newStatus) => {
+    const collection = database.getCollection('restaurants');
+    const result = await collection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { status: newStatus, updated_at: new Date() } }
+    );
+    
+    return result;
+};
+
+const getRestaurantStatusById = async (id) => {
+    const collection = database.getCollection('restaurants');
+    const restaurant = await collection.findOne(
+        { _id: new ObjectId(id) }, 
+        { projection: { status: 1, _id: 0 } }
+    );
+    return restaurant ? restaurant.status : null;
+};
+
 module.exports = {
     create,
     findById,
@@ -147,5 +174,8 @@ module.exports = {
     deleteById,
     updateRating,
     findNearby,
-    searchRestaurants
+    searchRestaurants,
+    findByStatus,
+    updateStatus,
+    getRestaurantStatusById
 };

@@ -33,14 +33,17 @@
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/restaurants` | Create new restaurant |
+| POST | `/api/restaurants` | Create new restaurant (default status: pending) |
 | GET | `/api/restaurants` | Get all restaurants |
 | GET | `/api/restaurants/search` | Search restaurants |
 | GET | `/api/restaurants/nearby` | Get nearby restaurants |
+| GET | `/api/restaurants/status/:status` | Get restaurants by status (pending, approved, rejected, suspended, active) |
+| GET | `/api/restaurants/:id/status` | Get restaurant status by ID |
 | GET | `/api/restaurants/:id` | Get restaurant by ID |
 | PUT | `/api/restaurants/:id` | Update complete restaurant info |
 | DELETE | `/api/restaurants/:id` | Delete restaurant |
 | PATCH | `/api/restaurants/:id/rating` | Update restaurant rating |
+| PATCH | `/api/restaurants/:id/status` | Update restaurant status |
 
 ---
 
@@ -146,6 +149,21 @@ Content-Type: application/json
 GET /api/users/status/pending
 ```
 
+### Update Restaurant Status (Accept/Reject)
+```bash
+PATCH /api/restaurants/123/status
+Content-Type: application/json
+
+{
+  "status": "approved"
+}
+```
+
+### Get Pending Restaurants
+```bash
+GET /api/restaurants/status/pending
+```
+
 ---
 
 ## 📝 Notes
@@ -155,8 +173,10 @@ GET /api/users/status/pending
   - Use PATCH for partial updates (status, rating, location, etc.)
 - **User Status Values:** pending, approved, rejected, suspended, active
 - **User Role Values:** user, admin, restaurant_owner, rider
+- **Restaurant Status Values:** pending, approved, rejected, suspended, active
 - All endpoints return JSON responses
 - New users are created with default status: "pending"
+- New restaurants are created with default status: "pending"
 - Authentication middleware can be added as needed
 - Database: MongoDB with native driver
 - Deployment: Vercel serverless functions
