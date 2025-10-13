@@ -38,6 +38,7 @@
 | GET | `/api/restaurants/search` | Search restaurants |
 | GET | `/api/restaurants/nearby` | Get nearby restaurants |
 | GET | `/api/restaurants/status/:status` | Get restaurants by status (pending, approved, rejected, suspended, active) |
+| GET | `/api/restaurants/email/:email` | Get restaurant by email |
 | GET | `/api/restaurants/:id/status` | Get restaurant status by ID |
 | GET | `/api/restaurants/:id` | Get restaurant by ID |
 | PUT | `/api/restaurants/:id` | Update complete restaurant info |
@@ -162,6 +163,11 @@ Content-Type: application/json
 ### Get Pending Restaurants
 ```bash
 GET /api/restaurants/status/pending
+```
+
+### Get Restaurant by Email
+```bash
+GET /api/restaurants/email/info@dhakabiryani.com
 ```
 
 ---
