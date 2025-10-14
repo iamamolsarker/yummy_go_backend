@@ -14,35 +14,81 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Initialize Firebase
 // initializeFirebase(); 
 
-async function startServer() {
+// Root route - Should respond immediately
+app.get('/', (req, res) => {
+    res.status(200).json({
+        message: 'Yummy Go Backend is running',
+        timestamp: new Date().toISOString(),
+        status: 'active'
+    });
+});
+
+// Serverless optimization - lazy load database connection
+app.use('/api', async (req, res, next) => {
     try {
-        // Connect to MongoDB
+        // Ensure database connection before processing any API request
         await database.connect();
-
-        // Mount all routes
-        app.use('/api', routes);
-
-        console.log("All routes are set up");
+        next();
     } catch (error) {
-        console.error("Failed to start server:", error);
+        console.error("Database connection failed:", error);
+        res.status(503).json({
+            status: 'error',
+            message: 'Database connection failed',
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
+// Mount all routes after database middleware
+app.use('/api', routes);
+
+// Global error handler
+app.use((error, req, res, next) => {
+    console.error('Global error handler:', error);
+    res.status(500).json({
+        status: 'error',
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({
+        status: 'error',
+        message: 'Route not found',
+        path: req.originalUrl,
+        method: req.method,
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Graceful shutdown handler
+process.on('SIGTERM', async () => {
+    console.log('SIGTERM received, shutting down gracefully');
+    try {
+        await database.disconnect();
+        process.exit(0);
+    } catch (error) {
+        console.error('Error during shutdown:', error);
         process.exit(1);
     }
+});
+
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
 }
 
-// Start the server
-startServer();
-
-// Root route
-app.get('/', (req, res) => {
-    res.send('Yummy Go Backend is running');
-});
-
-// Start listening
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+// Export for Vercel
+module.exports = app;
