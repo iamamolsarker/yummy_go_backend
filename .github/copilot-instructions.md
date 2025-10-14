@@ -12,7 +12,7 @@ This is a Node.js/Express food delivery API backend with MongoDB using the nativ
 
 ### Database Layer
 - Use `database.getCollection('collectionName')` instead of direct MongoDB client
-- Collections are pre-initialized: `users`, `restaurants`, `riders`, `menus`, `carts`, `orders`
+- Collections are pre-initialized: `users`, `restaurants`, `riders`, `menus`, `carts`, `orders`, `deliveries`
 - Models return raw MongoDB results (not abstracted objects)
 - Always use `new ObjectId(id)` for MongoDB `_id` queries
 
@@ -27,9 +27,11 @@ const { sendSuccess, sendError, sendCreated, sendNotFound, sendBadRequest } = re
 - **Statuses**: `pending`, `approved`, `rejected`, `suspended`, `active`
 - **Order Statuses**: `pending`, `confirmed`, `preparing`, `ready`, `picked_up`, `on_the_way`, `delivered`, `cancelled`
 - **Payment Statuses**: `pending`, `paid`, `failed`, `refunded`
+- **Delivery Statuses**: `assigned`, `accepted`, `picked_up`, `on_the_way`, `arrived`, `delivered`, `cancelled`
 - New users/restaurants default to `pending` status
 - Use email as primary identifier (not _id) for user operations
 - Orders are created from carts and auto-generate unique order numbers
+- Deliveries track real-time location with automatic location history
 
 ### Route Ordering (Critical)
 When adding parametric routes, order matters. Specific paths must come BEFORE generic `:param` routes:
