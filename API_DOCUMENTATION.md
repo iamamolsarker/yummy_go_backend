@@ -98,6 +98,28 @@
 
 ---
 
+## � Order Routes
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/orders` | Create new order from cart |
+| GET | `/api/orders` | Get all orders (admin function) |
+| GET | `/api/orders/stats` | Get order statistics (admin function) |
+| GET | `/api/orders/status/:status` | Get orders by status |
+| GET | `/api/orders/user/:userEmail` | Get orders by user email |
+| GET | `/api/orders/restaurant/:restaurantId` | Get orders by restaurant ID |
+| GET | `/api/orders/rider/:riderId` | Get orders by rider ID |
+| GET | `/api/orders/number/:orderNumber` | Get order by order number |
+| GET | `/api/orders/:orderId` | Get order by ID |
+| PATCH | `/api/orders/:orderId/status` | Update order status |
+| PATCH | `/api/orders/:orderId/payment` | Update payment status |
+| PATCH | `/api/orders/:orderId/rider` | Assign rider to order |
+| PATCH | `/api/orders/:orderId/delivery-time` | Update delivery time |
+| PATCH | `/api/orders/:orderId/cancel` | Cancel order |
+| DELETE | `/api/orders/:orderId` | Delete order (admin function) |
+
+---
+
 ## �🔧 System Routes
 
 | Method | Endpoint | Description |
@@ -231,6 +253,60 @@ Content-Type: application/json
 }
 ```
 
+### Create Order from Cart
+```bash
+POST /api/orders
+Content-Type: application/json
+
+{
+  "cart_id": "60f7b1b9e5b6c8b9a0b1c1d3",
+  "user_email": "john@example.com",
+  "delivery_address": {
+    "street": "123 Main St",
+    "city": "Dhaka",
+    "area": "Dhanmondi",
+    "postal_code": "1205",
+    "phone": "+8801234567890",
+    "instructions": "Ring the bell twice"
+  },
+  "payment_method": "card",
+  "delivery_fee": 5.00,
+  "tax_amount": 2.50,
+  "discount_amount": 1.00,
+  "special_instructions": "No onions please"
+}
+```
+
+### Update Order Status
+```bash
+PATCH /api/orders/60f7b1b9e5b6c8b9a0b1c1d5/status
+Content-Type: application/json
+
+{
+  "status": "confirmed"
+}
+```
+
+### Assign Rider to Order
+```bash
+PATCH /api/orders/60f7b1b9e5b6c8b9a0b1c1d5/rider
+Content-Type: application/json
+
+{
+  "rider_id": "60f7b1b9e5b6c8b9a0b1c1d6"
+}
+```
+
+### Update Payment Status
+```bash
+PATCH /api/orders/60f7b1b9e5b6c8b9a0b1c1d5/payment
+Content-Type: application/json
+
+{
+  "payment_status": "paid"
+}
+```
+
 ---
 
 ## 📝 Notes
@@ -242,12 +318,17 @@ Content-Type: application/json
 - **User Role Values:** user, admin, restaurant_owner, rider
 - **Restaurant Status Values:** pending, approved, rejected, suspended, active
 - **Cart Status Values:** active, checkout, ordered, cancelled
+- **Order Status Values:** pending, confirmed, preparing, ready, picked_up, on_the_way, delivered, cancelled
+- **Payment Status Values:** pending, paid, failed, refunded
 - All endpoints return JSON responses
 - New users are created with default status: "pending"
 - New restaurants are created with default status: "pending"
 - New carts are created with default status: "active"
+- New orders are created with default status: "pending" and payment status: "pending"
 - Users can only have one active cart at a time
 - Cart total amount is automatically calculated when items are added/updated
+- Orders are created from carts and include automatic order number generation
+- Order status changes automatically update relevant timestamps (confirmed_at, delivered_at, etc.)
 - Authentication middleware can be added as needed
 - Database: MongoDB with native driver
 - Deployment: Vercel serverless functions
