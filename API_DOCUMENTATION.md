@@ -81,7 +81,24 @@
 
 ---
 
-## 🔧 System Routes
+## � Cart Routes
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/carts` | Create new cart |
+| GET | `/api/carts` | Get all carts (admin function) |
+| GET | `/api/carts/user/:userEmail` | Get cart by user email |
+| GET | `/api/carts/:cartId` | Get cart by ID |
+| POST | `/api/carts/:cartId/items` | Add item to cart |
+| PATCH | `/api/carts/:cartId/items/:menuId/quantity` | Update item quantity in cart |
+| DELETE | `/api/carts/:cartId/items/:menuId` | Remove item from cart |
+| DELETE | `/api/carts/:cartId/clear` | Clear all items from cart |
+| DELETE | `/api/carts/:cartId` | Delete cart |
+| PATCH | `/api/carts/:cartId/status` | Update cart status (active/checkout/ordered/cancelled) |
+
+---
+
+## �🔧 System Routes
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -170,6 +187,50 @@ GET /api/restaurants/status/pending
 GET /api/restaurants/email/info@dhakabiryani.com
 ```
 
+### Create Cart
+```bash
+POST /api/carts
+Content-Type: application/json
+
+{
+  "user_email": "john@example.com",
+  "restaurant_id": "60f7b1b9e5b6c8b9a0b1c1d2"
+}
+```
+
+### Add Item to Cart
+```bash
+POST /api/carts/60f7b1b9e5b6c8b9a0b1c1d3/items
+Content-Type: application/json
+
+{
+  "menu_id": "60f7b1b9e5b6c8b9a0b1c1d4",
+  "quantity": 2,
+  "price": 15.99,
+  "notes": "Extra spicy"
+}
+```
+
+### Update Item Quantity
+```bash
+PATCH /api/carts/60f7b1b9e5b6c8b9a0b1c1d3/items/60f7b1b9e5b6c8b9a0b1c1d4/quantity
+Content-Type: application/json
+
+{
+  "quantity": 3
+}
+```
+
+### Update Cart Status
+```bash
+PATCH /api/carts/60f7b1b9e5b6c8b9a0b1c1d3/status
+Content-Type: application/json
+
+{
+  "status": "checkout"
+}
+```
+
 ---
 
 ## 📝 Notes
@@ -180,9 +241,13 @@ GET /api/restaurants/email/info@dhakabiryani.com
 - **User Status Values:** pending, approved, rejected, suspended, active
 - **User Role Values:** user, admin, restaurant_owner, rider
 - **Restaurant Status Values:** pending, approved, rejected, suspended, active
+- **Cart Status Values:** active, checkout, ordered, cancelled
 - All endpoints return JSON responses
 - New users are created with default status: "pending"
 - New restaurants are created with default status: "pending"
+- New carts are created with default status: "active"
+- Users can only have one active cart at a time
+- Cart total amount is automatically calculated when items are added/updated
 - Authentication middleware can be added as needed
 - Database: MongoDB with native driver
 - Deployment: Vercel serverless functions
