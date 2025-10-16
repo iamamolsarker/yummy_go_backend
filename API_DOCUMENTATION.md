@@ -25,6 +25,7 @@
 | GET | `/api/users/:email/status` | Get user status by email |
 | PATCH | `/api/users/:email/role` | Update user role |
 | PATCH | `/api/users/:email/status` | Update user status |
+| PATCH | `/api/users/:email/profile` | Update user profile (name, phone, address) |
 | GET | `/api/users/:email` | Get user by email |
 
 ---
@@ -206,6 +207,23 @@ Content-Type: application/json
 
 {
   "status": "approved"
+}
+```
+
+### Update User Profile
+```bash
+PATCH /api/users/john@example.com/profile
+Content-Type: application/json
+
+{
+  "name": "John Smith",
+  "phone": "+8801234567890",
+  "address": {
+    "street": "123 Main Street",
+    "city": "Dhaka",
+    "area": "Dhanmondi",
+    "postal_code": "1205"
+  }
 }
 ```
 

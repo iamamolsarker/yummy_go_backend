@@ -274,6 +274,93 @@ const getUserStatusByEmail = async (req, res) => {
   }
 };
 
+// Update user profile
+const updateProfile = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const { name, phone, address, city, area, profile_image } = req.body;
+
+    // Validate required parameter
+    if (!email) {
+      return sendBadRequest(res, 'Email is required');
+    }
+
+    // Check if user exists
+    const existingUser = await User.findByEmail(email);
+    if (!existingUser) {
+      return sendNotFound(res, 'User not found');
+    }
+
+    // Validate at least one field is provided for update
+    if (!name && !phone && !address && !city && !area && !profile_image) {
+      return sendBadRequest(res, 'At least one field must be provided to update');
+    }
+
+    // Validate name length if provided
+    if (name && (name.trim().length < 2 || name.trim().length > 100)) {
+      return sendBadRequest(res, 'Name must be between 2 and 100 characters');
+    }
+
+    // Validate phone format if provided
+    if (phone && phone.trim() !== '') {
+      const phoneRegex = /^[+]?[\d\s\-\(\)]{10,20}$/;
+      if (!phoneRegex.test(phone.trim())) {
+        return sendBadRequest(res, 'Invalid phone number format');
+      }
+    }
+
+    // Validate address fields length if provided
+    if (address && address.trim().length > 200) {
+      return sendBadRequest(res, 'Address must not exceed 200 characters');
+    }
+
+    if (city && city.trim().length > 50) {
+      return sendBadRequest(res, 'City must not exceed 50 characters');
+    }
+
+    if (area && area.trim().length > 50) {
+      return sendBadRequest(res, 'Area must not exceed 50 characters');
+    }
+
+    // Prepare profile data for update
+    const profileData = {};
+    if (name) profileData.name = name.trim();
+    if (phone !== undefined) profileData.phone = phone.trim() || null;
+    if (address !== undefined) profileData.address = address.trim() || null;
+    if (city !== undefined) profileData.city = city.trim() || null;
+    if (area !== undefined) profileData.area = area.trim() || null;
+    if (profile_image !== undefined) profileData.profile_image = profile_image.trim() || null;
+
+    // Update user profile
+    const result = await User.updateProfile(email, profileData);
+
+    if (result.modifiedCount === 0) {
+      return sendError(res, 'No changes were made to the profile', 400);
+    }
+
+    // Get updated user data
+    const updatedUser = await User.findByEmail(email);
+
+    return sendSuccess(res, {
+      updated: true,
+      email: email,
+      profile: {
+        name: updatedUser.name,
+        phone: updatedUser.phone,
+        address: updatedUser.address || null,
+        city: updatedUser.city || null,
+        area: updatedUser.area || null,
+        profile_image: updatedUser.profile_image || null,
+        updated_at: updatedUser.updated_at
+      }
+    }, 'User profile updated successfully');
+
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    return sendError(res, 'Internal Server Error', 500, error);
+  }
+};
+
 module.exports = {
   createUser,
   getAllUsers,
@@ -283,7 +370,8 @@ module.exports = {
   getUserRoleByEmail,
   getUsersByStatus,
   updateUserStatus,
-  getUserStatusByEmail
+  getUserStatusByEmail,
+  updateProfile
 };
 
 //amol-sarker

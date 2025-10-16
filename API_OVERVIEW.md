@@ -19,7 +19,7 @@ The Yummy Go Backend is a comprehensive food delivery API built with Node.js, Ex
 
 | Entity | Base Route | Total Endpoints | Key Features |
 |--------|------------|-----------------|--------------|
-| Users | `/api/users` | 9 | Role-based access, status management |
+| Users | `/api/users` | 10 | Role-based access, status management, profile updates |
 | Restaurants | `/api/restaurants` | 12+ | Location-based search, ratings |
 | Riders | `/api/riders` | 10+ | Availability tracking, location updates |
 | Menus | `/api/restaurants/:id/menus` | 9+ | Category filtering, featured items |
@@ -41,6 +41,7 @@ Real-time Tracking → Delivery Completion → Rating & Feedback
 - Multi-role system (user, admin, restaurant_owner, rider)
 - Email-based identification
 - Status-based approval workflow
+- Profile management with address and contact info
 
 ### **Restaurant Operations**
 - Location-based restaurant discovery
