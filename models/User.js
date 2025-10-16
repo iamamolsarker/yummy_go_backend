@@ -86,6 +86,30 @@ const getUserStatusByEmail = async (email) => {
     return user ? user.status : null;
 }
 
+const updateProfile = async (email, profileData) => {
+    const collection = database.getCollection('users');
+    
+    // Build update object - only include provided fields
+    const updateFields = {
+        updated_at: new Date().toISOString()
+    };
+    
+    // Add fields to update if they are provided
+    if (profileData.name !== undefined) updateFields.name = profileData.name;
+    if (profileData.phone !== undefined) updateFields.phone = profileData.phone;
+    if (profileData.address !== undefined) updateFields.address = profileData.address;
+    if (profileData.city !== undefined) updateFields.city = profileData.city;
+    if (profileData.area !== undefined) updateFields.area = profileData.area;
+    if (profileData.profile_image !== undefined) updateFields.profile_image = profileData.profile_image;
+    
+    const result = await collection.updateOne(
+        { email },
+        { $set: updateFields }
+    );
+    
+    return result;
+};
+
 module.exports = {
     create,
     findByEmail,
@@ -96,5 +120,6 @@ module.exports = {
     getUserRoleByEmail,
     findByStatus,
     updateStatus,
-    getUserStatusByEmail
+    getUserStatusByEmail,
+    updateProfile
 };
