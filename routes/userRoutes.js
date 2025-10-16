@@ -26,6 +26,9 @@ router.patch('/:email/role', userController.updateUserRole);
 // PATCH: Update user status (must come before /:email)
 router.patch('/:email/status', userController.updateUserStatus);
 
+// PATCH: Update user profile (must come before /:email)
+router.patch('/:email/profile', userController.updateProfile);
+
 // GET: get user by email (must come last among /:email routes)
 router.get('/:email', userController.getUserByEmail);
 
