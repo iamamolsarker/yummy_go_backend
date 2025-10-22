@@ -7,7 +7,7 @@ const create = async (userData) => {
         email: userData.email,
         phone: userData.phone || null,
         role: userData.role || 'user',
-        status: userData.status || 'pending',
+        status: userData.status || 'active',
         created_at: userData.created_at || new Date().toISOString(),
         last_log_in: userData.last_log_in || new Date().toISOString(),
     };
