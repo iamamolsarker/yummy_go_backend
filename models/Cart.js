@@ -2,6 +2,7 @@ const database = require('../config/database');
 const { ObjectId } = require('mongodb');
 
 const create = async (cartData) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('carts');
     const cart = {
         user_email: cartData.user_email,
@@ -18,21 +19,23 @@ const create = async (cartData) => {
 };
 
 const findByUserEmail = async (userEmail) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('carts');
     const cart = await collection.findOne({ 
-        user_email: userEmail,
-        status: 'active'
+        user_email: userEmail
     });
     return cart;
 };
 
 const findById = async (id) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('carts');
     const cart = await collection.findOne({ _id: new ObjectId(id) });
     return cart;
 };
 
 const updateCart = async (cartId, updateData) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('carts');
     const result = await collection.updateOne(
         { _id: new ObjectId(cartId) },
@@ -47,6 +50,7 @@ const updateCart = async (cartId, updateData) => {
 };
 
 const addItem = async (cartId, item) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('carts');
     const result = await collection.updateOne(
         { _id: new ObjectId(cartId) },
@@ -59,6 +63,7 @@ const addItem = async (cartId, item) => {
 };
 
 const removeItem = async (cartId, menuId) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('carts');
     const result = await collection.updateOne(
         { _id: new ObjectId(cartId) },
@@ -71,6 +76,7 @@ const removeItem = async (cartId, menuId) => {
 };
 
 const updateItemQuantity = async (cartId, menuId, quantity) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('carts');
     const result = await collection.updateOne(
         { 
@@ -88,6 +94,7 @@ const updateItemQuantity = async (cartId, menuId, quantity) => {
 };
 
 const clearCart = async (cartId) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('carts');
     const result = await collection.updateOne(
         { _id: new ObjectId(cartId) },
@@ -103,12 +110,14 @@ const clearCart = async (cartId) => {
 };
 
 const deleteCart = async (cartId) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('carts');
     const result = await collection.deleteOne({ _id: new ObjectId(cartId) });
     return result;
 };
 
 const updateTotalAmount = async (cartId, totalAmount) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('carts');
     const result = await collection.updateOne(
         { _id: new ObjectId(cartId) },
@@ -123,6 +132,7 @@ const updateTotalAmount = async (cartId, totalAmount) => {
 };
 
 const changeCartStatus = async (cartId, status) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('carts');
     const result = await collection.updateOne(
         { _id: new ObjectId(cartId) },
@@ -137,6 +147,7 @@ const changeCartStatus = async (cartId, status) => {
 };
 
 const findAllCarts = async () => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('carts');
     const result = await collection.find({}).sort({ created_at: -1 }).toArray();
     return result;
