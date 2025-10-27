@@ -2,6 +2,7 @@ const database = require('../config/database');
 const { ObjectId } = require('mongodb');
 
 const create = async (riderData) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('riders');
     const rider = {
         name: riderData.name,
@@ -36,24 +37,28 @@ const create = async (riderData) => {
 };
 
 const findById = async (id) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('riders');
     const rider = await collection.findOne({ _id: new ObjectId(id) });
     return rider;
 };
 
 const findByEmail = async (email) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('riders');
     const rider = await collection.findOne({ email });
     return rider;
 };
 
 const findByPhone = async (phone) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('riders');
     const rider = await collection.findOne({ phone });
     return rider;
 };
 
 const findAll = async (filters = {}) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('riders');
     let query = { is_active: true };
     
@@ -78,6 +83,7 @@ const findAll = async (filters = {}) => {
 };
 
 const updateById = async (id, updateData) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('riders');
     updateData.updated_at = new Date();
     const result = await collection.updateOne(
@@ -88,6 +94,7 @@ const updateById = async (id, updateData) => {
 };
 
 const updateStatus = async (id, status) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('riders');
     const result = await collection.updateOne(
         { _id: new ObjectId(id) },
@@ -102,6 +109,7 @@ const updateStatus = async (id, status) => {
 };
 
 const updateLocation = async (id, location) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('riders');
     const result = await collection.updateOne(
         { _id: new ObjectId(id) },
@@ -116,6 +124,7 @@ const updateLocation = async (id, location) => {
 };
 
 const deleteById = async (id) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('riders');
     const result = await collection.updateOne(
         { _id: new ObjectId(id) },
@@ -125,6 +134,7 @@ const deleteById = async (id) => {
 };
 
 const updateRating = async (id, newRating, totalDeliveries) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('riders');
     const result = await collection.updateOne(
         { _id: new ObjectId(id) },
@@ -140,11 +150,11 @@ const updateRating = async (id, newRating, totalDeliveries) => {
 };
 
 const findAvailableRiders = async (city = null) => {
+    await database.connect(); // Ensure database connection
     const collection = database.getCollection('riders');
     let query = { 
         is_active: true, 
-        status: 'available',
-        is_verified: true
+        status: 'available'
     };
     
     if (city) {
