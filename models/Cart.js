@@ -22,8 +22,7 @@ const findByUserEmail = async (userEmail) => {
     await database.connect(); // Ensure database connection
     const collection = database.getCollection('carts');
     const cart = await collection.findOne({ 
-        user_email: userEmail,
-        status: 'active'
+        user_email: userEmail
     });
     return cart;
 };
