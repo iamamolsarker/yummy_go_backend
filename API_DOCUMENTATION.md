@@ -4,6 +4,12 @@
 - **Production:** `https://yummy-go-server-c7y32u0q2-code-warriors-projects.vercel.app`
 - **Local:** `http://localhost:5000`
 
+## Documentation Files
+- **Main API Docs:** This file
+- **Payment Integration:** See `PAYMENT_API_DOCUMENTATION.md` for detailed Stripe integration
+- **Payment Setup:** See `STRIPE_SETUP_GUIDE.md` for quick start
+- **Payment Quick Reference:** See `STRIPE_QUICK_REFERENCE.md` for API examples
+
 ## HTTP Methods Used
 - **POST:** Create new resources
 - **GET:** Retrieve resources  
@@ -146,7 +152,20 @@
 
 ---
 
-## �🔧 System Routes
+## 💳 Payment Routes (Stripe Integration)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/payments/create-payment-intent` | Create payment intent for custom checkout |
+| POST | `/api/payments/confirm-payment` | Confirm payment after client-side processing |
+| POST | `/api/payments/create-checkout-session` | Create Stripe-hosted checkout session |
+| GET | `/api/payments/:orderId/details` | Get payment details for an order |
+| POST | `/api/payments/refund` | Process full or partial refund |
+| POST | `/api/payments/webhook` | Stripe webhook handler (auto-update payment status) |
+
+---
+
+## 🔧 System Routes
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -423,6 +442,58 @@ Content-Type: application/json
 }
 ```
 
+### Create Payment Intent (Stripe)
+```bash
+POST /api/payments/create-payment-intent
+Content-Type: application/json
+
+{
+  "orderId": "60f7b1b9e5b6c8b9a0b1c1d5",
+  "amount": 25.50,
+  "currency": "usd",
+  "description": "Payment for Order YG170123456789123"
+}
+```
+
+### Confirm Payment (Stripe)
+```bash
+POST /api/payments/confirm-payment
+Content-Type: application/json
+
+{
+  "paymentIntentId": "pi_1234567890abcdef"
+}
+```
+
+### Create Checkout Session (Stripe)
+```bash
+POST /api/payments/create-checkout-session
+Content-Type: application/json
+
+{
+  "orderId": "60f7b1b9e5b6c8b9a0b1c1d5",
+  "successUrl": "https://yourapp.com/success?session_id={CHECKOUT_SESSION_ID}",
+  "cancelUrl": "https://yourapp.com/cancel"
+}
+```
+
+### Get Payment Details
+```bash
+GET /api/payments/60f7b1b9e5b6c8b9a0b1c1d5/details
+```
+
+### Process Refund
+```bash
+POST /api/payments/refund
+Content-Type: application/json
+
+{
+  "orderId": "60f7b1b9e5b6c8b9a0b1c1d5",
+  "amount": 10.00,
+  "reason": "requested_by_customer"
+}
+```
+
 ---
 
 ## 📝 Notes
@@ -436,6 +507,7 @@ Content-Type: application/json
 - **Cart Status Values:** active, checkout, ordered, cancelled
 - **Order Status Values:** pending, confirmed, preparing, ready, picked_up, on_the_way, delivered, cancelled
 - **Payment Status Values:** pending, paid, failed, refunded
+- **Payment Methods:** stripe, cash, card
 - **Delivery Status Values:** assigned, accepted, picked_up, on_the_way, arrived, delivered, cancelled
 - All endpoints return JSON responses
 - New users are created with default status: "pending"
@@ -450,6 +522,44 @@ Content-Type: application/json
 - Deliveries track real-time location and provide location history
 - Delivery status changes automatically update relevant timestamps (accepted_at, delivered_at, etc.)
 - Deliveries support issue reporting, customer ratings, and delivery proof
+- **Stripe Payment Integration:**
+  - Supports Payment Intent (custom checkout) and Checkout Session (Stripe-hosted)
+  - Automatic payment status updates via webhooks
+  - Full and partial refund support
+  - Test mode with test card numbers (4242 4242 4242 4242)
+  - Payment details stored in order model (payment_intent_id, checkout_session_id)
+  - See `PAYMENT_API_DOCUMENTATION.md` for detailed payment integration guide
 - Authentication middleware can be added as needed
 - Database: MongoDB with native driver
 - Deployment: Vercel serverless functions
+
+---
+
+## 💳 Stripe Payment Test Cards
+
+For testing payment integration in test mode:
+
+| Card Number | Scenario |
+|------------|----------|
+| `4242 4242 4242 4242` | ✅ Successful payment |
+| `4000 0025 0000 3155` | 🔐 Requires 3D Secure authentication |
+| `4000 0000 0000 9995` | ❌ Payment declined |
+
+- **Expiry Date:** Any future date (e.g., 12/34)
+- **CVC:** Any 3 digits (e.g., 123)
+- **Postal Code:** Any valid code
+
+---
+
+## 📚 Additional Resources
+
+- **Complete Payment Documentation:** [PAYMENT_API_DOCUMENTATION.md](./PAYMENT_API_DOCUMENTATION.md)
+- **Payment Quick Start:** [STRIPE_SETUP_GUIDE.md](./STRIPE_SETUP_GUIDE.md)
+- **Payment Quick Reference:** [STRIPE_QUICK_REFERENCE.md](./STRIPE_QUICK_REFERENCE.md)
+- **Payment Architecture:** [STRIPE_ARCHITECTURE.md](./STRIPE_ARCHITECTURE.md)
+- **Test Payment Script:** Run `node testPayment.js` to test Stripe integration
+
+---
+
+**Last Updated:** October 28, 2025  
+**Version:** 2.0 (with Stripe Payment Integration)
