@@ -77,6 +77,7 @@ const riderRoutes = require('./riderRoutes');
 const cartRoutes = require('./cartRoutes');
 const orderRoutes = require('./orderRoutes');
 const deliveryRoutes = require('./deliveryRoutes');
+const paymentRoutes = require('./paymentRoutes');
 
 // Mount routes
 router.use('/users', userRoutes);
@@ -85,5 +86,6 @@ router.use('/riders', riderRoutes);
 router.use('/carts', cartRoutes);
 router.use('/orders', orderRoutes);
 router.use('/deliveries', deliveryRoutes);
+router.use('/payments', paymentRoutes);
 
 module.exports = router;
