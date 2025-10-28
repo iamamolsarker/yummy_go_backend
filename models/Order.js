@@ -22,6 +22,8 @@ const create = async (orderData) => {
         status: orderData.status || 'pending',
         payment_status: orderData.payment_status || 'pending',
         payment_method: orderData.payment_method || null,
+        payment_intent_id: orderData.payment_intent_id || null,
+        checkout_session_id: orderData.checkout_session_id || null,
         
         // Addresses
         delivery_address: {
