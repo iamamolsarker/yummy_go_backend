@@ -7,19 +7,28 @@ const createPaymentIntent = async (req, res) => {
   try {
     const { orderId, amount, currency = 'usd', description } = req.body;
 
+    console.log('Create payment intent request:', { orderId, amount, currency });
+
     // Validation
     if (!orderId || !amount) {
+      console.log('Validation failed: Missing orderId or amount');
       return sendBadRequest(res, 'Order ID and amount are required');
     }
 
     // Verify order exists
+    console.log('Looking for order with ID:', orderId);
     const order = await Order.findById(orderId);
+    
     if (!order) {
+      console.log('Order not found for ID:', orderId);
       return sendNotFound(res, 'Order not found');
     }
 
+    console.log('Order found:', { order_number: order.order_number, payment_status: order.payment_status });
+
     // Check if payment is already completed
     if (order.payment_status === 'paid') {
+      console.log('Order already paid');
       return sendBadRequest(res, 'Order is already paid');
     }
 
@@ -50,6 +59,18 @@ const createPaymentIntent = async (req, res) => {
 
   } catch (error) {
     console.error('Error creating payment intent:', error);
+    console.error('Error details:', error.message);
+    
+    // Handle MongoDB ObjectId validation errors
+    if (error.name === 'BSONError' || error.message.includes('ObjectId')) {
+      return sendBadRequest(res, 'Invalid Order ID format');
+    }
+    
+    // Handle Stripe errors
+    if (error.type === 'StripeInvalidRequestError') {
+      return sendBadRequest(res, `Stripe error: ${error.message}`);
+    }
+    
     return sendError(res, 'Failed to create payment intent', 500, error);
   }
 };
