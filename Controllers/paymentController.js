@@ -5,50 +5,63 @@ const { sendSuccess, sendError, sendCreated, sendNotFound, sendBadRequest } = re
 // Create payment intent for an order
 const createPaymentIntent = async (req, res) => {
   try {
-    const { orderId, amount, currency = 'usd', description } = req.body;
+    const { orderId, amount, currency = 'usd', description, userEmail } = req.body;
 
-    console.log('Create payment intent request:', { orderId, amount, currency });
+    console.log('Create payment intent request:', { orderId, amount, currency, userEmail });
 
-    // Validation
-    if (!orderId || !amount) {
-      console.log('Validation failed: Missing orderId or amount');
-      return sendBadRequest(res, 'Order ID and amount are required');
+    // Validation - amount is required, orderId is optional (can be created without order)
+    if (!amount || amount <= 0) {
+      console.log('Validation failed: Invalid amount');
+      return sendBadRequest(res, 'Valid amount is required');
     }
 
-    // Verify order exists
-    console.log('Looking for order with ID:', orderId);
-    const order = await Order.findById(orderId);
-    
-    if (!order) {
-      console.log('Order not found for ID:', orderId);
-      return sendNotFound(res, 'Order not found');
-    }
+    let order = null;
+    let metadata = {
+      amount: amount,
+      currency: currency
+    };
 
-    console.log('Order found:', { order_number: order.order_number, payment_status: order.payment_status });
+    // If orderId is provided, verify order exists
+    if (orderId) {
+      console.log('Looking for order with ID:', orderId);
+      order = await Order.findById(orderId);
+      
+      if (!order) {
+        console.log('Order not found for ID:', orderId);
+        return sendNotFound(res, 'Order not found');
+      }
 
-    // Check if payment is already completed
-    if (order.payment_status === 'paid') {
-      console.log('Order already paid');
-      return sendBadRequest(res, 'Order is already paid');
+      console.log('Order found:', { order_number: order.order_number, payment_status: order.payment_status });
+
+      // Check if payment is already completed
+      if (order.payment_status === 'paid') {
+        console.log('Order already paid');
+        return sendBadRequest(res, 'Order is already paid');
+      }
+
+      metadata.orderId = orderId;
+      metadata.orderNumber = order.order_number;
+      metadata.userEmail = order.user_email;
+    } else if (userEmail) {
+      // If no orderId but userEmail provided, add to metadata
+      metadata.userEmail = userEmail;
     }
 
     // Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Stripe expects amount in cents
       currency: currency.toLowerCase(),
-      description: description || `Payment for Order ${order.order_number}`,
-      metadata: {
-        orderId: orderId,
-        orderNumber: order.order_number,
-        userEmail: order.user_email
-      }
+      description: description || (order ? `Payment for Order ${order.order_number}` : 'Payment'),
+      metadata: metadata
     });
 
-    // Update order with payment intent ID
-    await Order.updateOrder(orderId, {
-      payment_intent_id: paymentIntent.id,
-      payment_method: 'stripe'
-    });
+    // Update order with payment intent ID if order exists
+    if (orderId && order) {
+      await Order.updateOrder(orderId, {
+        payment_intent_id: paymentIntent.id,
+        payment_method: 'stripe'
+      });
+    }
 
     return sendCreated(res, {
       clientSecret: paymentIntent.client_secret,
