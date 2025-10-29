@@ -18,7 +18,7 @@ const create = async (riderData) => {
             city: riderData.location?.city || null,
             coordinates: riderData.location?.coordinates || null // {lat, lng}
         },
-        status: riderData.status || 'available', // available, busy, offline
+        status: riderData.status || 'pending',
         rating: riderData.rating || 0,
         total_deliveries: riderData.total_deliveries || 0,
         documents: {
