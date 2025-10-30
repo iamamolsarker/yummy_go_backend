@@ -23,7 +23,13 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Initialize Firebase
-// initializeFirebase(); 
+try {
+    initializeFirebase();
+    console.log('Firebase initialized for authentication');
+} catch (error) {
+    console.error('Firebase initialization failed:', error.message);
+    // Continue without Firebase - authentication middleware will handle errors
+} 
 
 // Root route - Should respond immediately
 app.get('/', (req, res) => {
