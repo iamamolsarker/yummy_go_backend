@@ -384,10 +384,8 @@ npm start        # Production start
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👤 Author
+##  Repository
 
-**Amol Sarker**
-- GitHub: [@iamamolsarker](https://github.com/iamamolsarker)
 - Repository: [yummy_go_backend](https://github.com/iamamolsarker/yummy_go_backend)
 
 ## 🙏 Acknowledgments
@@ -400,7 +398,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email [your-email@example.com] or open an issue in the repository.
+For support, email [team.codewarriors25@gmail.com] or open an issue in the repository.
 
 ## 🔄 Version History
 
