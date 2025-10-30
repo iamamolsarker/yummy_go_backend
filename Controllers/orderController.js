@@ -3,6 +3,7 @@ const Cart = require('../models/Cart');
 const User = require('../models/User');
 const Restaurant = require('../models/Restaurant');
 const FoodRider = require('../models/FoodRider');
+const Delivery = require('../models/Delivery');
 const { sendSuccess, sendError, sendCreated, sendNotFound, sendBadRequest } = require('../utils/responseHelper');
 
 // Create a new order from cart
@@ -346,6 +347,8 @@ const assignRider = async (req, res) => {
     const { orderId } = req.params;
     const { rider_id } = req.body;
 
+    console.log('Assigning rider:', { orderId, rider_id });
+
     if (!orderId || !rider_id) {
       return sendBadRequest(res, 'Order ID and rider ID are required');
     }
@@ -356,10 +359,71 @@ const assignRider = async (req, res) => {
       return sendNotFound(res, 'Order not found');
     }
 
+    console.log('Order found:', { order_number: order.order_number, status: order.status });
+
     // Verify rider exists
     const rider = await FoodRider.findById(rider_id);
     if (!rider) {
       return sendNotFound(res, 'Rider not found');
+    }
+
+    console.log('Rider found:', { rider_name: rider.name, status: rider.status });
+
+    // Check if rider is already assigned
+    if (order.rider_id && order.rider_id.toString() === rider_id) {
+      return sendBadRequest(res, 'Rider is already assigned to this order');
+    }
+
+    // Check if delivery record already exists
+    const existingDelivery = await Delivery.findByOrderId(orderId);
+    if (existingDelivery) {
+      console.log('Delivery record already exists, updating rider');
+      // Update existing delivery record with new rider
+      await Delivery.updateDelivery(existingDelivery._id.toString(), {
+        rider_id: rider_id,
+        status: 'assigned',
+        assigned_at: new Date().toISOString()
+      });
+    } else {
+      console.log('Creating new delivery record');
+      
+      // Get restaurant details for pickup address
+      const restaurant = await Restaurant.findById(order.restaurant_id.toString());
+      
+      // Create delivery record
+      const deliveryData = {
+        order_id: orderId,
+        order_number: order.order_number,
+        rider_id: rider_id,
+        user_email: order.user_email,
+        restaurant_id: order.restaurant_id.toString(),
+        
+        // Pickup address (restaurant address)
+        pickup_address: {
+          street: restaurant?.location?.address || order.restaurant_address?.street,
+          city: restaurant?.location?.city || order.restaurant_address?.city,
+          area: restaurant?.location?.area || order.restaurant_address?.area,
+          contact_phone: restaurant?.phone || order.restaurant_address?.phone
+        },
+        
+        // Delivery address (customer address)
+        delivery_address: {
+          street: order.delivery_address?.street,
+          city: order.delivery_address?.city,
+          area: order.delivery_address?.area,
+          postal_code: order.delivery_address?.postal_code,
+          contact_phone: order.delivery_address?.phone,
+          instructions: order.delivery_address?.instructions || order.special_instructions
+        },
+        
+        delivery_fee: order.delivery_fee || 0,
+        delivery_instructions: order.special_instructions,
+        estimated_delivery_time: order.estimated_delivery_time,
+        status: 'assigned'
+      };
+
+      const deliveryResult = await Delivery.create(deliveryData);
+      console.log('Delivery record created:', deliveryResult.insertedId);
     }
 
     // Assign rider to order
@@ -368,14 +432,18 @@ const assignRider = async (req, res) => {
       return sendError(res, 'Failed to assign rider to order', 400);
     }
 
+    console.log('Rider successfully assigned to order');
+
     return sendSuccess(res, { 
       assigned: true, 
       orderId: orderId, 
-      riderId: rider_id 
-    }, 'Rider assigned to order successfully');
+      riderId: rider_id,
+      deliveryCreated: !existingDelivery
+    }, 'Rider assigned to order successfully and delivery record created');
 
   } catch (error) {
     console.error('Error assigning rider:', error);
+    console.error('Error details:', error.message);
     return sendError(res, 'Internal Server Error', 500, error);
   }
 };

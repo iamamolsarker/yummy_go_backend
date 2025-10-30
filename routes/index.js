@@ -78,6 +78,7 @@ const cartRoutes = require('./cartRoutes');
 const orderRoutes = require('./orderRoutes');
 const deliveryRoutes = require('./deliveryRoutes');
 const paymentRoutes = require('./paymentRoutes');
+const paymentController = require('../Controllers/paymentController');
 
 // Mount routes
 router.use('/users', userRoutes);
@@ -87,5 +88,9 @@ router.use('/carts', cartRoutes);
 router.use('/orders', orderRoutes);
 router.use('/deliveries', deliveryRoutes);
 router.use('/payments', paymentRoutes);
+
+// Direct payment routes (for backward compatibility with client)
+router.post('/create-payment-intent', paymentController.createPaymentIntent);
+router.post('/confirm-payment', paymentController.confirmPayment);
 
 module.exports = router;

@@ -156,6 +156,8 @@
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| POST | `/api/create-payment-intent` | Create payment intent for custom checkout (backward compatible) |
+| POST | `/api/confirm-payment` | Confirm payment after client-side processing (backward compatible) |
 | POST | `/api/payments/create-payment-intent` | Create payment intent for custom checkout |
 | POST | `/api/payments/confirm-payment` | Confirm payment after client-side processing |
 | POST | `/api/payments/create-checkout-session` | Create Stripe-hosted checkout session |
@@ -349,13 +351,25 @@ Content-Type: application/json
 }
 ```
 
-### Assign Rider to Order
+### Assign Rider to Order (Auto-creates Delivery Record)
 ```bash
 PATCH /api/orders/60f7b1b9e5b6c8b9a0b1c1d5/rider
 Content-Type: application/json
 
 {
   "rider_id": "60f7b1b9e5b6c8b9a0b1c1d6"
+}
+
+# Response includes delivery creation status
+{
+  "success": true,
+  "data": {
+    "assigned": true,
+    "orderId": "60f7b1b9e5b6c8b9a0b1c1d5",
+    "riderId": "60f7b1b9e5b6c8b9a0b1c1d6",
+    "deliveryCreated": true
+  },
+  "message": "Rider assigned to order successfully and delivery record created"
 }
 ```
 
@@ -444,7 +458,8 @@ Content-Type: application/json
 
 ### Create Payment Intent (Stripe)
 ```bash
-POST /api/payments/create-payment-intent
+# Option 1: With Order ID (recommended)
+POST /api/create-payment-intent
 Content-Type: application/json
 
 {
@@ -452,6 +467,29 @@ Content-Type: application/json
   "amount": 25.50,
   "currency": "usd",
   "description": "Payment for Order YG170123456789123"
+}
+
+# Option 2: Without Order ID (for pre-order payment)
+POST /api/create-payment-intent
+Content-Type: application/json
+
+{
+  "amount": 25.50,
+  "currency": "usd",
+  "userEmail": "customer@example.com",
+  "description": "Food order payment"
+}
+
+# Response
+{
+  "success": true,
+  "data": {
+    "clientSecret": "pi_xxx_secret_xxx",
+    "paymentIntentId": "pi_1234567890abcdef",
+    "amount": 2550,
+    "currency": "usd"
+  },
+  "message": "Payment intent created successfully"
 }
 ```
 
@@ -519,11 +557,19 @@ Content-Type: application/json
 - Cart total amount is automatically calculated when items are added/updated
 - Orders are created from carts and include automatic order number generation
 - Order status changes automatically update relevant timestamps (confirmed_at, delivered_at, etc.)
+- **Assigning a rider to an order automatically creates a delivery record** with:
+  - Order details (order_id, order_number)
+  - Rider details (rider_id)
+  - Pickup address (from restaurant)
+  - Delivery address (from order)
+  - Status: 'assigned'
 - Deliveries track real-time location and provide location history
 - Delivery status changes automatically update relevant timestamps (accepted_at, delivered_at, etc.)
 - Deliveries support issue reporting, customer ratings, and delivery proof
 - **Stripe Payment Integration:**
   - Supports Payment Intent (custom checkout) and Checkout Session (Stripe-hosted)
+  - **Flexible payment creation:** Can create payment intent with or without orderId
+  - **Backward compatible routes:** Both `/api/create-payment-intent` and `/api/payments/create-payment-intent` work
   - Automatic payment status updates via webhooks
   - Full and partial refund support
   - Test mode with test card numbers (4242 4242 4242 4242)
@@ -561,5 +607,5 @@ For testing payment integration in test mode:
 
 ---
 
-**Last Updated:** October 28, 2025  
-**Version:** 2.0 (with Stripe Payment Integration)
+**Last Updated:** October 30, 2025  
+**Version:** 2.1 (with Stripe Payment Integration & Auto-Delivery Creation)
