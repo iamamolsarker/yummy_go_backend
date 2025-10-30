@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true });
 const menuController = require('../Controllers/menuController');
+const { verifyJWT } = require('../middleware/auth');
+const { verifyAdminOrRestaurantOwner } = require('../middleware/roleAuth');
 
 // All routes are nested under /restaurants/:restaurantId/menus
 
-// POST: Add a new menu item to restaurant
-router.post('/', menuController.createMenu);
-
+// Public routes (anyone can view menus)
 // GET: Get all menu items for restaurant
 router.get('/', menuController.getRestaurantMenus);
 
@@ -22,13 +22,18 @@ router.get('/category/:category', menuController.getMenusByCategory);
 // GET: Get specific menu item
 router.get('/:menuId', menuController.getMenuById);
 
-// PATCH: Update menu item
-router.patch('/:menuId', menuController.updateMenu);
+// Restaurant owner or admin routes
+// POST: Add a new menu item to restaurant (restaurant owner or admin)
+router.post('/', verifyJWT, verifyAdminOrRestaurantOwner, menuController.createMenu);
 
-// PATCH: Update menu rating
-router.patch('/:menuId/rating', menuController.updateMenuRating);
+// PATCH: Update menu item (restaurant owner or admin)
+router.patch('/:menuId', verifyJWT, verifyAdminOrRestaurantOwner, menuController.updateMenu);
 
-// DELETE: Delete menu item
-router.delete('/:menuId', menuController.deleteMenu);
+// DELETE: Delete menu item (restaurant owner or admin)
+router.delete('/:menuId', verifyJWT, verifyAdminOrRestaurantOwner, menuController.deleteMenu);
+
+// User routes (authenticated users can rate)
+// PATCH: Update menu rating (any authenticated user can rate)
+router.patch('/:menuId/rating', verifyJWT, menuController.updateMenuRating);
 
 module.exports = router;

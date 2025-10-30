@@ -1,35 +1,40 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../Controllers/userController');
+const { verifyJWT, optionalAuth } = require('../middleware/auth');
+const { verifyAdmin, verifyActiveUser } = require('../middleware/roleAuth');
 
-// POST: Add a new user
+// Public routes
+// POST: Add a new user (registration - no auth required)
 router.post('/', userController.createUser);
 
+// Admin-only routes
 // GET: Get all users
-router.get('/', userController.getAllUsers);
+router.get('/', verifyJWT, verifyAdmin, userController.getAllUsers);
 
 // GET: Get users by role
-router.get('/role/:role', userController.getUsersByRole);
+router.get('/role/:role', verifyJWT, verifyAdmin, userController.getUsersByRole);
 
 // GET: Get users by status
-router.get('/status/:status', userController.getUsersByStatus);
+router.get('/status/:status', verifyJWT, verifyAdmin, userController.getUsersByStatus);
 
-// GET: Get users role by email (must come before /:email)
-router.get('/:email/role', userController.getUserRoleByEmail);
+// PATCH: Update user role (admin only)
+router.patch('/:email/role', verifyJWT, verifyAdmin, userController.updateUserRole);
 
-// GET: Get users status by email (must come before /:email)
-router.get('/:email/status', userController.getUserStatusByEmail);
+// PATCH: Update user status (admin only)
+router.patch('/:email/status', verifyJWT, verifyAdmin, userController.updateUserStatus);
 
-// PATCH: Update user role (must come before /:email)
-router.patch('/:email/role', userController.updateUserRole);
+// Protected user routes
+// GET: Get users role by email (user can check their own or admin can check any)
+router.get('/:email/role', optionalAuth, userController.getUserRoleByEmail);
 
-// PATCH: Update user status (must come before /:email)
-router.patch('/:email/status', userController.updateUserStatus);
+// GET: Get users status by email (user can check their own or admin can check any)
+router.get('/:email/status', optionalAuth, userController.getUserStatusByEmail);
 
-// PATCH: Update user profile (must come before /:email)
-router.patch('/:email/profile', userController.updateProfile);
+// PATCH: Update user profile (authenticated users can update their own profile)
+router.patch('/:email/profile', verifyJWT, verifyActiveUser, userController.updateProfile);
 
-// GET: get user by email (must come last among /:email routes)
-router.get('/:email', userController.getUserByEmail);
+// GET: get user by email (public with optional auth for enhanced data)
+router.get('/:email', optionalAuth, userController.getUserByEmail);
 
 module.exports = router;

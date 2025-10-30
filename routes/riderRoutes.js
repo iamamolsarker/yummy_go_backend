@@ -1,35 +1,41 @@
 const express = require('express');
 const router = express.Router();
 const riderController = require('../Controllers/riderController');
+const { verifyJWT } = require('../middleware/auth');
+const { verifyAdmin, verifyRider, verifyRole } = require('../middleware/roleAuth');
 
-// POST: Add a new rider
-router.post('/', riderController.createRider);
-
-// GET: Get all riders
-router.get('/', riderController.getAllRiders);
-
-// GET: Get available riders
-router.get('/available', riderController.getAvailableRiders);
-
-// GET: Get rider by ID
+// Public routes
+// GET: Get rider by ID (public for customer to see rider info)
 router.get('/:id', riderController.getRiderById);
 
-// GET: Get rider by email
-router.get('/email/:email', riderController.getRiderByEmail);
+// Admin or Restaurant owner routes (for assigning riders)
+// GET: Get all riders
+router.get('/', verifyJWT, verifyRole(['admin', 'restaurant_owner']), riderController.getAllRiders);
 
-// PUT: Update rider (complete replacement)
-router.put('/:id', riderController.updateRider);
+// GET: Get available riders
+router.get('/available', verifyJWT, verifyRole(['admin', 'restaurant_owner']), riderController.getAvailableRiders);
 
-// PATCH: Update rider status
-router.patch('/:id/status', riderController.updateRiderStatus);
+// Rider routes (rider managing their own profile)
+// POST: Add a new rider (admin or self-registration)
+router.post('/', riderController.createRider);
 
-// PATCH: Update rider location
-router.patch('/:id/location', riderController.updateRiderLocation);
+// GET: Get rider by email (rider checking own profile or admin)
+router.get('/email/:email', verifyJWT, verifyRole(['admin', 'rider']), riderController.getRiderByEmail);
 
-// PATCH: Update rider rating
-router.patch('/:id/rating', riderController.updateRiderRating);
+// PUT: Update rider (rider updating own profile or admin)
+router.put('/:id', verifyJWT, verifyRole(['admin', 'rider']), riderController.updateRider);
 
+// PATCH: Update rider location (rider only - during delivery)
+router.patch('/:id/location', verifyJWT, verifyRider, riderController.updateRiderLocation);
+
+// PATCH: Update rider status (rider can change own status: available/busy/offline)
+router.patch('/:id/status', verifyJWT, verifyRole(['admin', 'rider', 'restaurant_owner']), riderController.updateRiderStatus);
+
+// PATCH: Update rider rating (customers or admin can rate)
+router.patch('/:id/rating', verifyJWT, riderController.updateRiderRating);
+
+// Admin-only routes
 // DELETE: Delete rider
-router.delete('/:id', riderController.deleteRider);
+router.delete('/:id', verifyJWT, verifyAdmin, riderController.deleteRider);
 
 module.exports = router;
