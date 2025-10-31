@@ -15,9 +15,6 @@ router.get('/search', restaurantController.searchRestaurants);
 // GET: Get nearby restaurants
 router.get('/nearby', restaurantController.getNearbyRestaurants);
 
-// GET: Get restaurant by ID
-router.get('/:id', restaurantController.getRestaurantById);
-
 // Restaurant owner routes
 // POST: Add a new restaurant (restaurant owner or admin)
 router.post('/', verifyJWT, verifyAdminOrRestaurantOwner, restaurantController.createRestaurant);
@@ -32,18 +29,21 @@ router.patch('/:id/rating', verifyJWT, restaurantController.updateRestaurantRati
 // GET: Get restaurant by email (owner checking own restaurant or admin checking any)
 router.get('/email/:email', verifyJWT, verifyAdminOrRestaurantOwner, restaurantController.getRestaurantByEmail);
 
-// GET: Get restaurant status by ID (owner or admin)
-router.get('/:id/status', verifyJWT, verifyAdminOrRestaurantOwner, restaurantController.getRestaurantStatusById);
-
 // Admin-only routes
 // GET: Get restaurants by status (admin only)
 router.get('/status/:status', verifyJWT, verifyAdmin, restaurantController.getRestaurantsByStatus);
+
+// GET: Get restaurant status by ID (owner or admin)
+router.get('/:id/status', verifyJWT, verifyAdminOrRestaurantOwner, restaurantController.getRestaurantStatusById);
 
 // PATCH: Update restaurant status (admin only - approve/reject/suspend)
 router.patch('/:id/status', verifyJWT, verifyAdmin, restaurantController.updateRestaurantStatus);
 
 // DELETE: Delete restaurant (admin only)
 router.delete('/:id', verifyJWT, verifyAdmin, restaurantController.deleteRestaurant);
+
+// GET: Get restaurant by ID (MUST BE LAST - catches all other /:id patterns)
+router.get('/:id', restaurantController.getRestaurantById);
 
 // Nested Menu Routes - /restaurants/:restaurantId/menus
 router.use('/:restaurantId/menus', (req, res, next) => {

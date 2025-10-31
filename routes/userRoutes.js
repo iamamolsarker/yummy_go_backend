@@ -18,18 +18,21 @@ router.get('/role/:role', verifyJWT, verifyAdmin, userController.getUsersByRole)
 // GET: Get users by status
 router.get('/status/:status', verifyJWT, verifyAdmin, userController.getUsersByStatus);
 
+// POST: Bulk activate pending users with role 'user' (admin utility)
+router.post('/bulk-activate', verifyJWT, verifyAdmin, userController.bulkActivatePendingUsers);
+
 // PATCH: Update user role (admin only)
 router.patch('/:email/role', verifyJWT, verifyAdmin, userController.updateUserRole);
 
 // PATCH: Update user status (admin only)
 router.patch('/:email/status', verifyJWT, verifyAdmin, userController.updateUserStatus);
 
-// Protected user routes
-// GET: Get users role by email (user can check their own or admin can check any)
-router.get('/:email/role', optionalAuth, userController.getUserRoleByEmail);
+
+// GET: Get users role by email 
+router.get('/:email/role', userController.getUserRoleByEmail);
 
 // GET: Get users status by email (user can check their own or admin can check any)
-router.get('/:email/status', optionalAuth, userController.getUserStatusByEmail);
+router.get('/:email/status', userController.getUserStatusByEmail);
 
 // PATCH: Update user profile (authenticated users can update their own profile)
 router.patch('/:email/profile', verifyJWT, verifyActiveUser, userController.updateProfile);

@@ -110,6 +110,18 @@ const updateProfile = async (email, profileData) => {
     return result;
 };
 
+const bulkActivatePendingUsers = async () => {
+    const collection = database.getCollection('users');
+    
+    // Update all users with role 'user' and status 'pending' to 'active'
+    const result = await collection.updateMany(
+        { role: 'user', status: 'pending' },
+        { $set: { status: 'active', updated_at: new Date().toISOString() } }
+    );
+    
+    return result;
+};
+
 module.exports = {
     create,
     findByEmail,
@@ -121,5 +133,6 @@ module.exports = {
     findByStatus,
     updateStatus,
     getUserStatusByEmail,
-    updateProfile
+    updateProfile,
+    bulkActivatePendingUsers
 };
