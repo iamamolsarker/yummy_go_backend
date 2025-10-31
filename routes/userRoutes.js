@@ -18,6 +18,9 @@ router.get('/role/:role', verifyJWT, verifyAdmin, userController.getUsersByRole)
 // GET: Get users by status
 router.get('/status/:status', verifyJWT, verifyAdmin, userController.getUsersByStatus);
 
+// POST: Bulk activate pending users with role 'user' (admin utility)
+router.post('/bulk-activate', verifyJWT, verifyAdmin, userController.bulkActivatePendingUsers);
+
 // PATCH: Update user role (admin only)
 router.patch('/:email/role', verifyJWT, verifyAdmin, userController.updateUserRole);
 

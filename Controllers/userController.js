@@ -385,6 +385,28 @@ const updateProfile = async (req, res) => {
   }
 };
 
+// Bulk activate pending users (admin utility function)
+const bulkActivatePendingUsers = async (req, res) => {
+  try {
+    console.log('Bulk activating pending users with role "user"...');
+    
+    // Update all users with role 'user' and status 'pending' to 'active'
+    const result = await User.bulkActivatePendingUsers();
+
+    console.log(`Successfully activated ${result.modifiedCount} pending users`);
+
+    return sendSuccess(res, {
+      updated: true,
+      modifiedCount: result.modifiedCount,
+      message: `${result.modifiedCount} pending users with role 'user' have been activated`
+    }, 'Bulk activation completed successfully');
+
+  } catch (error) {
+    console.error('Error bulk activating pending users:', error);
+    return sendError(res, 'Internal Server Error', 500, error);
+  }
+};
+
 module.exports = {
   createUser,
   getAllUsers,
@@ -395,7 +417,8 @@ module.exports = {
   getUsersByStatus,
   updateUserStatus,
   getUserStatusByEmail,
-  updateProfile
+  updateProfile,
+  bulkActivatePendingUsers
 };
 
 //amol-sarker
