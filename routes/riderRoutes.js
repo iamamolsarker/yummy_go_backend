@@ -4,15 +4,11 @@ const riderController = require('../Controllers/riderController');
 const { verifyJWT } = require('../middleware/auth');
 const { verifyAdmin, verifyRider, verifyRole } = require('../middleware/roleAuth');
 
-// Public routes
-// GET: Get rider by ID (public for customer to see rider info)
-router.get('/:id', riderController.getRiderById);
-
 // Admin or Restaurant owner routes (for assigning riders)
 // GET: Get all riders
 router.get('/', verifyJWT, verifyRole(['admin', 'restaurant_owner']), riderController.getAllRiders);
 
-// GET: Get available riders
+// GET: Get available riders (MUST BE BEFORE /:id route)
 router.get('/available', verifyJWT, verifyRole(['admin', 'restaurant_owner']), riderController.getAvailableRiders);
 
 // Rider routes (rider managing their own profile)
@@ -37,5 +33,9 @@ router.patch('/:id/rating', verifyJWT, riderController.updateRiderRating);
 // Admin-only routes
 // DELETE: Delete rider
 router.delete('/:id', verifyJWT, verifyAdmin, riderController.deleteRider);
+
+// Public routes
+// GET: Get rider by ID (MUST BE LAST - catches all other /:id patterns)
+router.get('/:id', riderController.getRiderById);
 
 module.exports = router;

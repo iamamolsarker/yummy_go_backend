@@ -2,38 +2,38 @@ const express = require('express');
 const router = express.Router();
 const cartController = require('../Controllers/cartController');
 const { verifyJWT } = require('../middleware/auth');
-const { verifyAdmin, verifyActiveUser } = require('../middleware/roleAuth');
+const { verifyAdmin } = require('../middleware/roleAuth');
 
 // Admin-only routes
 // GET: Get all carts (admin function)
 router.get('/', verifyJWT, verifyAdmin, cartController.getAllCarts);
 
-// User cart routes (authenticated and active users only)
+// User cart routes (authenticated users only)
 // POST: Create a new cart
-router.post('/', verifyJWT, verifyActiveUser, cartController.createCart);
+router.post('/', verifyJWT, cartController.createCart);
 
 // GET: Get cart by user email (user can only access their own cart)
-router.get('/user/:userEmail', verifyJWT, verifyActiveUser, cartController.getCartByUserEmail);
+router.get('/user/:userEmail', verifyJWT, cartController.getCartByUserEmail);
 
 // GET: Get cart by ID (user can only access their own cart)
-router.get('/:cartId', verifyJWT, verifyActiveUser, cartController.getCartById);
+router.get('/:cartId', verifyJWT, cartController.getCartById);
 
 // POST: Add item to cart
-router.post('/:cartId/items', verifyJWT, verifyActiveUser, cartController.addItemToCart);
+router.post('/:cartId/items', verifyJWT, cartController.addItemToCart);
 
 // PATCH: Update item quantity in cart
-router.patch('/:cartId/items/:menuId/quantity', verifyJWT, verifyActiveUser, cartController.updateItemQuantity);
+router.patch('/:cartId/items/:menuId/quantity', verifyJWT, cartController.updateItemQuantity);
 
 // DELETE: Remove item from cart
-router.delete('/:cartId/items/:menuId', verifyJWT, verifyActiveUser, cartController.removeItemFromCart);
+router.delete('/:cartId/items/:menuId', verifyJWT, cartController.removeItemFromCart);
 
 // DELETE: Clear all items from cart
-router.delete('/:cartId/clear', verifyJWT, verifyActiveUser, cartController.clearCart);
+router.delete('/:cartId/clear', verifyJWT, cartController.clearCart);
 
 // DELETE: Delete cart
-router.delete('/:cartId', verifyJWT, verifyActiveUser, cartController.deleteCart);
+router.delete('/:cartId', verifyJWT, cartController.deleteCart);
 
 // PATCH: Update cart status
-router.patch('/:cartId/status', verifyJWT, verifyActiveUser, cartController.updateCartStatus);
+router.patch('/:cartId/status', verifyJWT, cartController.updateCartStatus);
 
 module.exports = router;
