@@ -16,24 +16,36 @@ const createUser = async (req, res) => {
       // User already exists - return success with existing user data
       // This allows idempotent user creation (Firebase login flow)
       console.log(`User already exists: ${email}`);
+      
+      // Update last login time
+      await User.updateLastLogin(email);
+      
       return sendSuccess(res, {
         userId: existingUser._id,
         user: {
           name: existingUser.name,
           email: existingUser.email,
           phone: existingUser.phone,
-          role: existingUser.role
+          role: existingUser.role,
+          status: existingUser.status
         },
         alreadyExists: true
       }, 'User already exists');
     }
 
     // Create new user
+    // Auto-approve regular users (already verified via Firebase)
+    // Only restaurant_owner, rider, and admin need manual approval
+    const autoApproveRoles = ['user'];
+    const userRole = role || 'user';
+    const userStatus = autoApproveRoles.includes(userRole) ? 'active' : 'pending';
+    
     const userData = {
       name,
       email,
       phone: phone || null,
-      role: role || 'user'
+      role: userRole,
+      status: userStatus
     };
 
     const result = await User.create(userData);
