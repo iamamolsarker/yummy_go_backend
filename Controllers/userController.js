@@ -13,7 +13,19 @@ const createUser = async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findByEmail(email);
     if (existingUser) {
-      return sendBadRequest(res, 'User with this email already exists');
+      // User already exists - return success with existing user data
+      // This allows idempotent user creation (Firebase login flow)
+      console.log(`User already exists: ${email}`);
+      return sendSuccess(res, {
+        userId: existingUser._id,
+        user: {
+          name: existingUser.name,
+          email: existingUser.email,
+          phone: existingUser.phone,
+          role: existingUser.role
+        },
+        alreadyExists: true
+      }, 'User already exists');
     }
 
     // Create new user
